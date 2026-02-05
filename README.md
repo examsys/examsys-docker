@@ -200,5 +200,5 @@ if you are running the instance on your local machine.
 
 ## Also see
 
-* [examsys-php-apache](https://bitbucket.org/examsys/examsys-php-apache)
-* [examsys-rserve](https://bitbucket.org/examsys/examsys-rserve)
+* [examsys-php-apache](https://github.com/examsys/examsys-php-apache)
+* [examsys-rserve](https://github.com/examsys/examsys-rserve)
