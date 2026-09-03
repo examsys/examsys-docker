@@ -125,11 +125,21 @@ fi
 if [ "$EXAMSYS_DOCKER_MEMCACHED" == 1 ]
 then
     dockercompose="${dockercompose} -f ${basedir}/memcache.yml"
+
+    if [ "$EXAMSYS_DOCKER_CLUSTER" == 1 ]
+    then
+      dockercompose="${dockercompose} -f ${basedir}/memcache-cluster.yml"
+    fi
 fi
 
 if [ "$EXAMSYS_DOCKER_RSERVE" == 1 ]
 then
     dockercompose="${dockercompose} -f ${basedir}/rserve.yml"
+
+    if [ "$EXAMSYS_DOCKER_CLUSTER" == 1 ]
+    then
+      dockercompose="${dockercompose} -f ${basedir}/rserve-cluster.yml"
+    fi
 fi
 
 if [ "$EXAMSYS_DOCKER_WORKBENCH" == 1 ]
@@ -148,6 +158,11 @@ then
         dockercompose="${dockercompose} -f ${basedir}/selenium.yml"
     else
         dockercompose="${dockercompose} -f ${basedir}/selenium-debug.yml"
+    fi
+
+    if [ "$EXAMSYS_DOCKER_CLUSTER" == 1 ]
+    then
+      dockercompose="${dockercompose} -f ${basedir}/selenium-cluster.yml"
     fi
 fi
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rogo>
+  <website>http://web:8080</website>
+  <db_database>examsys_behat</db_database>
+  <db_user>root</db_user>
+  <db_password><!-- Enter the password you set in EXAMSYS_DOCKER_MYSQLROOT --></db_password>
+  <data>/rogodatabehat</data>
+  <faildump>/faildump</faildump>
+  <db_engine>NDB</db_engine>
+  <db_help_engine>InnoDB</db_help_engine>
+  <browser>chrome</browser>
+  <wd_host>selenium:4444/wd/hub</wd_host>
+</rogo>

@@ -36,19 +36,15 @@ services:
       MYSQL_ROOT_PASSWORD: ${EXAMSYS_DOCKER_MYSQLROOT}
       MYSQL_ROOT_HOST: "%"
       TZ: ${EXAMSYS_DOCKER_MYSQLTZ}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "db", "-u", "root", "-p${EXAMSYS_DOCKER_MYSQLROOT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 4
     depends_on:
       - ndbmgmt
       - ndbnode1
       - ndbnode2
-  cache:
-    networks:
-      - frontend
-  calc:
-    networks:
-      - frontend
-  selenium:
-    networks:
-      - frontend
 networks:
   frontend:
     driver: bridge

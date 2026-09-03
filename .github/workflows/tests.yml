@@ -1,0 +1,88 @@
+name: Integration checks
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    # We should have a test here for major releases of ExamSys that we still wish to support
+    # running via examsys-docker.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: develop
+            php: latest
+            mysql: 8.4
+          - branch: 7.6.0
+            php: 8.1
+            mysql: 8.0
+          - branch: 7.5.0
+            php: 7.4
+            mysql: 5.7
+
+    env:
+      EXAMSYS_DOCKER_WWWROOT: ${{ github.workspace }}/examsys
+      EXAMSYS_DOCKER_MYSQLROOT: test
+      EXAMSYS_DOCKER_PHP: ${{ matrix.php }}
+      EXAMSYS_DOCKER_WEB_HTTP_PORT: 80
+      EXAMSYS_DOCKER_WEB_HTTPS_PORT: 443
+      EXAMSYS_DOCKER_SELENIUM: 1
+      EXAMSYS_DOCKER_MYSQLVERSION: ${{ matrix.mysql }}
+      EXAMSYS_DOCKER_MYSQLTZ: Europe/London
+      EXAMSYS_DOCKER_RSERVE: 1
+
+    steps:
+      - name: Checking out examsys-docker
+        uses: actions/checkout@v7
+        with:
+          path: docker
+
+      - name: Checking out examsys
+        uses: actions/checkout@v7
+        with:
+          repository: examsys/examsys
+          path: examsys
+          ref: ${{ matrix.branch }}
+
+      - name: Create unattended installation files
+        run: |
+          cp docker/settings-innodb.xml examsys/config/settings.xml
+          cp docker/phpunit-innodb.xml examsys/config/phpunit.xml
+          sed -i 's/<!-- Replace with the password you set in EXAMSYS_DOCKER_MYSQLROOT -->/${{ env.EXAMSYS_DOCKER_MYSQLROOT }}/g' examsys/config/phpunit.xml
+
+      - name: Start ExamSys docker instance
+        run: docker/examsys-compose.sh up -d
+
+      - name: Pause container
+        run: docker/examsys-compose.sh stop
+
+      - name: Restart container
+        run: docker/examsys-compose.sh start
+
+      - name: Install dependencies
+        run: docker/examsys-compose.sh exec -T web npm install
+
+      - name: Build CSS and JavaScript
+        run: docker/examsys-compose.sh exec -T web grunt
+
+      # We need to install ExamSys before we can install the test suite.
+      - name: Install ExamSys
+        run: docker/examsys-compose.sh exec -T web php cli/init.php -u root -p $EXAMSYS_DOCKER_MYSQLROOT -s db -t 3306 -n examsys
+
+      - name: Install PHP Unit test suite
+        run: docker/examsys-compose.sh exec -T web php testing/unittest/cli/init.php --clean
+
+      - name: Run PHP Unit tests
+        run: docker/examsys-compose.sh exec -T web vendor/bin/phpunit -c testing/unittest/config/phpunit.xml
+
+      - name: Stop ExamSys docker instance
+        run: docker/examsys-compose.sh down
+
+# In the future we should add some tests for NDB cluster.
