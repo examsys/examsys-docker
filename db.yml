@@ -4,3 +4,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${EXAMSYS_DOCKER_MYSQLROOT}
       TZ: ${EXAMSYS_DOCKER_MYSQLTZ}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "db", "-u", "root", "-p${EXAMSYS_DOCKER_MYSQLROOT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 4

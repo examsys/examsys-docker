@@ -1,0 +1,4 @@
+services:
+  selenium:
+    networks:
+      - frontend

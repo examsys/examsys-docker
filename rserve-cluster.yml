@@ -1,0 +1,4 @@
+services:
+  calc:
+    networks:
+      - frontend
